@@ -1,0 +1,7 @@
+name,college_id,email,phone,year,branch
+Sample Student One,SAMPLE-001,sample.one@example.com,0000000201,1,Computer Science
+Sample Student Two,SAMPLE-002,sample.two@example.com,0000000202,2,Information Technology
+Sample Student Three,SAMPLE-003,sample.three@example.com,,3,Electronics
+Sample Student Four,SAMPLE-004,sample.four@example.com,0000000204,4,Mechanical
+Sample Student Five,SAMPLE-005,sample.five@example.com,,2,Civil
+Sample Student Six,SAMPLE-006,sample.six@example.com,0000000206,1,Design

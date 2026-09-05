@@ -1,0 +1,2 @@
+# Runtime: Python 3.10+ and Flask. SQLite is included with Python.
+Flask==3.1.2

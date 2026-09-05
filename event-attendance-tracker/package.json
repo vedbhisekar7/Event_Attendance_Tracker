@@ -1,0 +1,10 @@
+{
+  "name": "event-attendance-tracker",
+  "version": "1.0.0",
+  "description": "A complete event attendance tracking system",
+  "scripts": {
+    "install-deps": "cd backend && npm install",
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && npx nodemon server.js"
+  }
+}

@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8f9f6" />
+    <meta
+      name="description"
+      content="Gather — a simple, thoughtful workspace for campus event registration and attendance."
+    />
+    <title>Gather · Event Attendance Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <aside class="sidebar" aria-label="Workspace navigation">
+      <a class="brand" href="#overview" aria-label="Gather overview">
+        <span class="brand-mark" aria-hidden="true"
+          ><svg viewBox="0 0 40 40">
+            <g fill="currentColor">
+              <rect x="15" y="1" width="10" height="38" rx="4" />
+              <rect x="15" y="1" width="10" height="38" rx="4" transform="rotate(45 20 20)" />
+              <rect x="15" y="1" width="10" height="38" rx="4" transform="rotate(90 20 20)" />
+              <rect x="15" y="1" width="10" height="38" rx="4" transform="rotate(135 20 20)" />
+            </g>
+            <circle cx="20" cy="20" r="5" fill="#fffdf9" /></svg
+        ></span>
+        <span>gather<span class="brand-dot">.</span><small>EVENT ATTENDANCE</small></span>
+      </a>
+      <p class="nav-label">YOUR WORKSPACE</p>
+      <nav class="primary-nav">
+        <a href="#overview" data-nav="overview" class="nav-link active"
+          ><span data-icon="grid"></span>Overview<span class="nav-active-dot"></span
+        ></a>
+        <a href="#checkin" data-nav="checkin" class="nav-link"
+          ><span data-icon="scan"></span>Check-in desk</a
+        >
+        <a href="#participants" data-nav="participants" class="nav-link"
+          ><span data-icon="users"></span>Participants<span id="nav-count" class="nav-count"
+            >—</span
+          ></a
+        >
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="desk-note">
+          <span class="note-icon" data-icon="ticket"></span>
+          <h3>Less admin.<br />More good moments.</h3>
+          <p>Make every arrival<br />feel like a welcome.</p>
+          <a href="#checkin">Let’s check in <span data-icon="arrow-right"></span></a>
+          <span class="note-doodle" aria-hidden="true">✳</span>
+        </div>
+        <button class="nav-link guide-link" type="button" data-action="help">
+          <span data-icon="help"></span>Quick guide<span data-icon="arrow-up-right"></span>
+        </button>
+        <div class="workspace-signature">
+          <span class="workspace-avatar">G</span>
+          <div>Organizer workspace<small>Local-first. Made for campus.</small></div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="breadcrumb">
+          <span data-icon="layers"></span><span class="breadcrumb-parent">Workspace</span
+          ><span class="breadcrumb-slash">/</span><strong id="breadcrumb-current">Overview</strong>
+        </div>
+        <div class="topbar-right">
+          <span class="connection-badge" id="connection-badge"
+            ><span class="status-dot"></span><span id="connection-text">Connecting…</span></span
+          ><span class="organizer-avatar" title="Organizer workspace">OR</span>
+        </div>
+      </header>
+      <main id="main" tabindex="-1">
+        <div id="global-error" class="error-banner" role="alert" hidden>
+          <span data-icon="alert"></span><span id="global-error-text"></span
+          ><button type="button" class="btn btn-small btn-secondary" data-action="retry">
+            Try again
+          </button>
+        </div>
+        <section class="page-heading" aria-labelledby="page-title">
+          <div>
+            <p class="eyebrow" id="page-eyebrow">A LITTLE ORGANIZATION. A GREAT EVENT.</p>
+            <h1 id="page-title">Your event, at a glance<span class="accent-dot">.</span></h1>
+            <p class="page-description" id="page-description">
+              Every registration. Every arrival. All in one happy place.
+            </p>
+          </div>
+          <div class="heading-actions" id="heading-actions">
+            <button type="button" class="btn btn-secondary" data-action="import">
+              <span data-icon="upload"></span>Import CSV</button
+            ><a class="btn btn-primary" href="#checkin"
+              ><span data-icon="scan"></span>Check in student</a
+            >
+          </div>
+        </section>
+
+        <section class="event-banner" aria-label="Selected event">
+          <div class="event-stamp"><span data-icon="ticket"></span></div>
+          <div class="event-content">
+            <div class="event-label">
+              CURRENT EVENT <span class="demo-badge" id="demo-badge" hidden>DEMO DATA</span>
+            </div>
+            <div class="event-select-wrap">
+              <select id="event-select" aria-label="Current event">
+                <option value="">Loading events…</option></select
+              ><span data-icon="chevron-down"></span>
+            </div>
+            <div class="event-meta">
+              <span><span data-icon="calendar"></span><span id="event-date">—</span></span
+              ><span class="meta-divider"></span
+              ><span><span data-icon="pin"></span><span id="event-venue">—</span></span>
+            </div>
+          </div>
+          <button type="button" class="btn btn-event" data-action="new-event">
+            <span data-icon="plus"></span>New event
+          </button>
+        </section>
+
+        <div id="no-event" class="empty-state panel" hidden>
+          <span class="empty-icon" data-icon="ticket"></span>
+          <h2>Your next great event starts here.</h2>
+          <p>Create an event, add your participants, and you’re ready to welcome them.</p>
+          <button type="button" class="btn btn-primary" data-action="new-event">
+            <span data-icon="plus"></span>Create your first event
+          </button>
+        </div>
+
+        <section id="page-overview" class="page-view" aria-label="Attendance overview">
+          <div class="stat-grid">
+            <article class="stat-card stat-lilac">
+              <div class="stat-top">
+                <span>Total registered</span><span class="stat-icon" data-icon="users"></span>
+              </div>
+              <div class="stat-number" id="stat-total">—</div>
+              <div class="stat-foot"><span class="tiny-dot"></span>On the guest list</div>
+              <span class="stat-decoration" aria-hidden="true"></span>
+            </article>
+            <article class="stat-card stat-mint">
+              <div class="stat-top">
+                <span>Present</span><span class="stat-icon" data-icon="user-check"></span>
+              </div>
+              <div class="stat-number" id="stat-present">—</div>
+              <div class="stat-foot"><span class="tiny-dot"></span>Checked in & ready to go</div>
+              <span class="stat-decoration" aria-hidden="true"></span>
+            </article>
+            <article class="stat-card stat-peach">
+              <div class="stat-top">
+                <span>Not marked</span><span class="stat-icon" data-icon="clock"></span>
+              </div>
+              <div class="stat-number" id="stat-absent">—</div>
+              <div class="stat-foot"><span class="tiny-dot"></span>Still to arrive · Absent</div>
+              <span class="stat-decoration" aria-hidden="true"></span>
+            </article>
+            <article class="stat-card stat-yellow">
+              <div class="stat-top">
+                <span>Attendance rate</span><span class="stat-icon" data-icon="chart"></span>
+              </div>
+              <div class="stat-number" id="stat-percentage">—</div>
+              <div class="stat-foot">
+                <span class="tiny-dot"></span>A little closer to a full house
+              </div>
+              <span class="stat-decoration" aria-hidden="true"></span>
+            </article>
+          </div>
+          <div class="insights-grid">
+            <article class="panel attendance-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>The arrival picture</h2>
+                  <p>A real-time little headcount.</p>
+                </div>
+                <span class="live-pill"><span class="status-dot"></span>30s refresh</span>
+              </div>
+              <div class="arrival-chart">
+                <div class="donut" id="attendance-donut" role="img" aria-label="Attendance loading">
+                  <div class="donut-center">
+                    <strong id="donut-percentage">0<span>%</span></strong
+                    ><span>checked in</span>
+                  </div>
+                </div>
+                <div class="chart-legend">
+                  <div>
+                    <span class="legend-dot present-dot"></span
+                    ><span>Present<small>Already part of the moment</small></span
+                    ><strong id="legend-present">—</strong>
+                  </div>
+                  <div>
+                    <span class="legend-dot absent-dot"></span
+                    ><span>Not marked<small>We’re saving them a spot</small></span
+                    ><strong id="legend-absent">—</strong>
+                  </div>
+                  <div class="legend-total">
+                    <span>Registered students</span><strong id="legend-total">—</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="arrival-note">
+                <span data-icon="sparkles"></span
+                ><span id="arrival-note-text">Getting your event ready…</span
+                ><span class="note-arrow" data-icon="arrow-up-right"></span>
+              </div>
+            </article>
+            <article class="panel breakdown-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>A closer look</h2>
+                  <p>Present students, group by group.</p>
+                </div>
+                <div class="segmented" role="group" aria-label="Attendance breakdown">
+                  <button type="button" data-breakdown="year" class="selected" aria-pressed="true">
+                    Year</button
+                  ><button type="button" data-breakdown="branch" aria-pressed="false">
+                    Branch
+                  </button>
+                </div>
+              </div>
+              <div id="breakdown-chart" class="breakdown-chart">
+                <p class="muted">Loading attendance…</p>
+              </div>
+              <div class="breakdown-caption">
+                <span class="tiny-dot"></span>Colored bar = present<span>Present / registered</span>
+              </div>
+            </article>
+          </div>
+          <article class="panel recent-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>
+                  Fresh off the check-in desk
+                  <span class="heading-emoji" aria-hidden="true">✦</span>
+                </h2>
+                <p>The latest people to join the event.</p>
+              </div>
+              <button class="text-button" type="button" data-action="view-present">
+                View all participants <span data-icon="arrow-right"></span>
+              </button>
+            </div>
+            <div id="recent-checkins" class="table-scroll"></div>
+          </article>
+        </section>
+
+        <section id="page-participants" class="page-view" aria-label="Participant directory" hidden>
+          <article class="panel directory-panel">
+            <div class="directory-toolbar">
+              <div class="search-field">
+                <span data-icon="search"></span
+                ><input
+                  type="search"
+                  id="participant-search"
+                  placeholder="Search name, email, College ID or phone…"
+                  maxlength="120"
+                  aria-label="Search participants"
+                  autocomplete="off"
+                /><kbd>/</kbd>
+              </div>
+              <button type="button" class="btn btn-secondary" data-action="export">
+                <span data-icon="download"></span>Export CSV
+              </button>
+            </div>
+            <div class="filter-row">
+              <span class="filter-label"><span data-icon="filter"></span>Filter by</span
+              ><select id="filter-status" aria-label="Filter attendance status">
+                <option value="all">All statuses</option>
+                <option value="present">Present</option>
+                <option value="absent">Not marked / absent</option></select
+              ><select id="filter-year" aria-label="Filter year">
+                <option value="">All years</option></select
+              ><select id="filter-branch" aria-label="Filter branch">
+                <option value="">All branches</option></select
+              ><button
+                class="text-button clear-filters"
+                type="button"
+                data-action="clear-filters"
+                hidden
+              >
+                Clear filters</button
+              ><select id="sort-order" class="sort-select" aria-label="Sort participants">
+                <option value="name">Name: A–Z</option>
+                <option value="newest">Recently added</option>
+                <option value="checkin">Latest check-ins</option>
+              </select>
+            </div>
+            <div class="directory-count">
+              <strong id="directory-count">Participants</strong
+              ><span class="muted">A quick ID check. A friendly welcome.</span>
+            </div>
+            <div id="participant-table" class="table-scroll" aria-live="polite"></div>
+            <div class="pagination">
+              <div class="page-size-control">
+                <span>Show</span
+                ><select id="page-size" aria-label="Rows per page">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option></select
+                ><span>per page</span>
+              </div>
+              <span id="page-range" class="page-range">—</span>
+              <div class="page-buttons">
+                <button
+                  class="icon-button"
+                  id="previous-page"
+                  type="button"
+                  aria-label="Previous page"
+                  disabled
+                >
+                  <span data-icon="chevron-left"></span></button
+                ><span id="page-indicator">1 / 1</span
+                ><button
+                  class="icon-button"
+                  id="next-page"
+                  type="button"
+                  aria-label="Next page"
+                  disabled
+                >
+                  <span data-icon="chevron-right"></span>
+                </button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section id="page-checkin" class="page-view" aria-label="Student check-in desk" hidden>
+          <div class="checkin-layout">
+            <div class="checkin-main">
+              <article class="panel checkin-search-panel">
+                <div class="checkin-intro">
+                  <span class="checkin-intro-icon" data-icon="scan"></span>
+                  <div>
+                    <h2>Find a registered student</h2>
+                    <p>A name, email, College ID, or phone number is all you need.</p>
+                  </div>
+                </div>
+                <div class="search-field large-search">
+                  <span data-icon="search"></span
+                  ><input
+                    id="checkin-search"
+                    type="search"
+                    placeholder="Who are we welcoming?"
+                    maxlength="120"
+                    aria-label="Find student for check-in"
+                    autocomplete="off"
+                    spellcheck="false"
+                  /><kbd>⌘ K</kbd>
+                </div>
+                <div class="checkin-steps">
+                  <span><b>1</b>Find student</span><span class="step-dash"></span
+                  ><span><b>2</b>Match College ID</span><span class="step-dash"></span
+                  ><span><b>3</b>Mark present</span>
+                </div>
+              </article>
+              <div id="checkin-results" aria-live="polite"></div>
+            </div>
+            <aside class="checkin-side">
+              <article class="desk-summary">
+                <div class="desk-summary-top">
+                  <span class="status-dot"></span>THE DOORS ARE OPEN<span
+                    data-icon="sparkles"
+                  ></span>
+                </div>
+                <h3>Good people.<br />Great company.</h3>
+                <div class="desk-count">
+                  <strong id="desk-present">—</strong
+                  ><span>of <b id="desk-total">—</b> students<br />have checked in</span>
+                </div>
+                <div class="desk-progress"><span id="desk-progress-bar"></span></div>
+                <div class="desk-rate" id="desk-rate">— attendance</div>
+              </article>
+              <article class="panel verification-note">
+                <span class="verify-icon" data-icon="shield"></span>
+                <h3>A quick check goes a long way.</h3>
+                <p>
+                  Compare the student’s physical College ID card with their registration before
+                  marking them present.
+                </p>
+                <div class="note-rule"></div>
+                <span data-icon="info"></span>
+                <p>Can’t find someone? They may not be registered for the selected event.</p>
+              </article>
+              <div class="mini-recent">
+                <h3>Just welcomed</h3>
+                <div id="desk-recent"></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <footer class="page-footer">
+          <span
+            ><span data-icon="shield-check"></span>Attendance is saved in SQLite, not just your
+            browser.</span
+          ><span id="last-updated">Connecting to your workspace…</span>
+        </footer>
+      </main>
+    </div>
+    <nav class="mobile-nav" aria-label="Mobile workspace navigation">
+      <a href="#overview" data-nav="overview" class="active"
+        ><span data-icon="grid"></span>Overview</a
+      ><a href="#checkin" data-nav="checkin"><span data-icon="scan"></span>Check-in desk</a
+      ><a href="#participants" data-nav="participants"
+        ><span data-icon="users"></span>Participants</a
+      >
+    </nav>
+
+    <dialog id="participant-dialog" class="modal" aria-labelledby="participant-dialog-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">GROW THE GUEST LIST</p>
+          <h2 id="participant-dialog-title">Add a participant</h2>
+        </div>
+        <button
+          type="button"
+          class="icon-button"
+          data-close="participant-dialog"
+          aria-label="Close participant form"
+        >
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <form id="participant-form">
+        <div class="modal-body">
+          <p class="modal-intro">
+            The first step to a warm welcome. <span class="required-note">* Required fields</span>
+          </p>
+          <div id="participant-form-error" class="form-error" role="alert" hidden></div>
+          <div class="form-grid">
+            <label class="form-field full-width"
+              >Full name <span class="required">*</span
+              ><input
+                name="name"
+                type="text"
+                required
+                minlength="2"
+                maxlength="100"
+                placeholder="e.g. Ananya Sharma"
+                autocomplete="name" /></label
+            ><label class="form-field"
+              >College ID <span class="required">*</span
+              ><input
+                name="college_id"
+                type="text"
+                required
+                minlength="2"
+                maxlength="32"
+                placeholder="e.g. CC26-049"
+                spellcheck="false"
+                autocapitalize="characters"
+              /><small>Match the ID printed on the college card.</small></label
+            ><label class="form-field"
+              >Email address <span class="required">*</span
+              ><input
+                name="email"
+                type="email"
+                required
+                maxlength="254"
+                placeholder="student@example.com"
+                autocomplete="email" /></label
+            ><label class="form-field"
+              >Phone number <span class="field-optional">Optional</span
+              ><input
+                name="phone"
+                type="tel"
+                maxlength="30"
+                placeholder="e.g. +91 98765 43210"
+                autocomplete="tel" /></label
+            ><label class="form-field"
+              >Year <span class="field-optional">Optional</span
+              ><select name="year">
+                <option value="">Not specified</option>
+                <option value="1">1st year</option>
+                <option value="2">2nd year</option>
+                <option value="3">3rd year</option>
+                <option value="4">4th year</option>
+                <option value="5">5th year</option>
+                <option value="PG">Postgraduate</option>
+                <option value="Other">Other</option>
+              </select></label
+            ><label class="form-field full-width"
+              >Branch / department <span class="field-optional">Optional</span
+              ><input
+                name="branch"
+                type="text"
+                list="branch-suggestions"
+                maxlength="80"
+                placeholder="e.g. Computer Science" /><datalist id="branch-suggestions">
+                <option value="Computer Science"></option>
+                <option value="Information Technology"></option>
+                <option value="Electronics"></option>
+                <option value="Mechanical"></option>
+                <option value="Civil"></option>
+                <option value="Design"></option></datalist
+            ></label>
+          </div>
+          <div class="soft-info">
+            <span data-icon="info"></span
+            ><span
+              >New participants start as <strong>not marked</strong>. Verify their ID at the
+              entrance to check them in.</span
+            >
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-close="participant-dialog">
+            Cancel</button
+          ><button class="btn btn-primary" id="save-participant" type="submit">
+            <span data-icon="plus"></span>Add participant
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="event-dialog" class="modal modal-small" aria-labelledby="event-dialog-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">MAKE SOMETHING HAPPEN</p>
+          <h2 id="event-dialog-title">Create a new event</h2>
+        </div>
+        <button
+          type="button"
+          class="icon-button"
+          data-close="event-dialog"
+          aria-label="Close event form"
+        >
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <form id="event-form">
+        <div class="modal-body">
+          <p class="modal-intro">A fresh guest list and a new set of good moments.</p>
+          <div id="event-form-error" class="form-error" role="alert" hidden></div>
+          <div class="form-grid">
+            <label class="form-field full-width"
+              >Event name <span class="required">*</span
+              ><input
+                name="name"
+                type="text"
+                required
+                minlength="2"
+                maxlength="80"
+                placeholder="e.g. Freshers’ Welcome 2026" /></label
+            ><label class="form-field full-width"
+              >Event date <span class="required">*</span
+              ><input name="event_date" type="date" required /></label
+            ><label class="form-field full-width"
+              >Venue <span class="field-optional">Optional</span
+              ><input name="venue" type="text" maxlength="100" placeholder="e.g. Main Auditorium"
+            /></label>
+          </div>
+          <div class="soft-info">
+            <span data-icon="layers"></span>Registrations and attendance are kept separately for
+            each event.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close="event-dialog">Cancel</button
+          ><button type="submit" class="btn btn-primary" id="save-event">
+            <span data-icon="plus"></span>Create event
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="import-dialog" class="modal modal-wide" aria-labelledby="import-dialog-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">BRING YOUR LIST ALONG</p>
+          <h2 id="import-dialog-title">Import registrations</h2>
+        </div>
+        <button
+          type="button"
+          class="icon-button"
+          data-close="import-dialog"
+          aria-label="Close CSV import"
+        >
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-intro">
+          Upload a CSV. We’ll check the details before anyone joins the list.
+        </p>
+        <div class="csv-guide">
+          <div>
+            <strong>Not sure where to start?</strong>
+            <p>Our template has all the columns you need.</p>
+          </div>
+          <a href="/api/template.csv" download class="btn btn-small btn-secondary"
+            ><span data-icon="download"></span>Get template</a
+          >
+        </div>
+        <label class="drop-zone" id="drop-zone" for="csv-file"
+          ><input id="csv-file" class="sr-only" type="file" accept=".csv,text/csv" /><span
+            class="upload-cloud"
+            data-icon="upload-cloud"
+          ></span
+          ><strong id="csv-file-label">Click to upload <span>or drag and drop</span></strong
+          ><small>CSV UTF-8 · Maximum 2 MB · Up to 5,000 participants</small></label
+        >
+        <div class="csv-columns">
+          <strong>Required</strong><code>name</code><code>college_id</code><code>email</code
+          ><span>Optional: phone, year, branch</span>
+        </div>
+        <div id="import-feedback" aria-live="polite"></div>
+        <div class="soft-info">
+          <span data-icon="shield-check"></span
+          ><span
+            >All or nothing: if any row has an error, nothing is imported. Existing registrations
+            and attendance are never overwritten.</span
+          >
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close="import-dialog">Cancel</button
+        ><button type="button" class="btn btn-primary" id="confirm-import" disabled>
+          <span data-icon="upload"></span>Import participants
+        </button>
+      </div>
+    </dialog>
+
+    <dialog id="detail-dialog" class="drawer" aria-labelledby="detail-title">
+      <div class="drawer-top">
+        <span class="eyebrow">PARTICIPANT DETAILS</span
+        ><button
+          type="button"
+          class="icon-button"
+          data-close="detail-dialog"
+          aria-label="Close participant details"
+        >
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <div id="detail-content"></div>
+    </dialog>
+
+    <dialog id="confirm-dialog" class="modal modal-small" aria-labelledby="confirm-title">
+      <div class="modal-header">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <button
+          type="button"
+          class="icon-button"
+          data-close="confirm-dialog"
+          aria-label="Close confirmation"
+        >
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-description"></p>
+        <div id="confirm-error" class="form-error" role="alert" hidden></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close="confirm-dialog">Cancel</button
+        ><button type="button" class="btn btn-danger" id="confirm-action">Confirm</button>
+      </div>
+    </dialog>
+
+    <dialog id="help-dialog" class="modal" aria-labelledby="help-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">SMALL LEARNING CURVE. BIG WELCOME.</p>
+          <h2 id="help-title">A little guide to Gather</h2>
+        </div>
+        <button
+          type="button"
+          class="icon-button"
+          data-close="help-dialog"
+          aria-label="Close quick guide"
+        >
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="guide-steps">
+          <div>
+            <b>01</b>
+            <section>
+              <h3>Choose your event</h3>
+              <p>
+                Switch events with the selector or create a new one. The demo event contains 48
+                fictional registrations so you can explore safely.
+              </p>
+            </section>
+          </div>
+          <div>
+            <b>02</b>
+            <section>
+              <h3>Build the guest list</h3>
+              <p>
+                Add participants one at a time or import a CSV. Name, College ID, and email are
+                required. College IDs and emails must be unique within an event.
+              </p>
+            </section>
+          </div>
+          <div>
+            <b>03</b>
+            <section>
+              <h3>Find. Verify. Welcome.</h3>
+              <p>
+                At the check-in desk, search by name, email, College ID, or phone. Open a student’s
+                record, compare their physical card, then mark them present. A mistaken check-in can
+                be undone.
+              </p>
+            </section>
+          </div>
+          <div>
+            <b>04</b>
+            <section>
+              <h3>Keep an eye on the room</h3>
+              <p>
+                The overview shows totals and attendance by year or branch. Filter the directory and
+                export a CSV report. Counts refresh every 30 seconds and after your changes.
+              </p>
+            </section>
+          </div>
+        </div>
+        <div class="soft-info">
+          <span data-icon="database"></span
+          ><span
+            >Attendance lives in <code>data/attendance.sqlite3</code> on the server. Refreshing or
+            closing the browser does not erase it. This coursework app has no login—keep real
+            student data on a trusted local machine.</span
+          >
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-close="help-dialog">
+          Got it, let’s gather <span data-icon="arrow-right"></span>
+        </button>
+      </div>
+    </dialog>
+
+    <div
+      id="toast-region"
+      class="toast-region"
+      role="status"
+      aria-live="polite"
+      aria-atomic="false"
+    ></div>
+    <noscript
+      ><div class="noscript-message">
+        Gather needs JavaScript. Please enable it in your browser and reload this page.
+      </div></noscript
+    >
+  </body>
+</html>

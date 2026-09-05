@@ -1,0 +1,4 @@
+name,college_id,email,phone,year,branch
+Alex Morgan,NEW-001,alex.morgan@example.com,,1,Computer Science
+Sam Taylor,NEW-002,sam.taylor@example.com,0000000123,2,Design
+Jordan Lee,NEW-003,jordan.lee@example.com,,3,Electronics

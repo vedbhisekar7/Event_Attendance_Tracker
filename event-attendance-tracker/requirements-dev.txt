@@ -1,0 +1,3 @@
+# Optional; not required to run the application or the 40 backend tests.
+-r requirements.txt
+playwright==1.55.0
