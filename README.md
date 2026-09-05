@@ -29,9 +29,9 @@ CSV files require name, college_id, and email. Optional fields are phone, year, 
 A sample event is included. Create a new event to use your own registration list.
 
 Screenshots:
+<img width="1887" height="971" alt="Screenshot 2026-09-05 113102" src="https://github.com/user-attachments/assets/77d8bb0e-4d1b-4373-8845-9c38e1bcd548" />
 <img width="1906" height="968" alt="Screenshot 2026-09-05 113132" src="https://github.com/user-attachments/assets/d5ca1db1-e6f1-4b3d-ba24-5097508c7766" />
 <img width="1896" height="967" alt="Screenshot 2026-09-05 113119" src="https://github.com/user-attachments/assets/c8ba5cf2-abd7-4a68-8cff-d5105fb2bd36" />
-<img width="1887" height="971" alt="Screenshot 2026-09-05 113102" src="https://github.com/user-attachments/assets/77d8bb0e-4d1b-4373-8845-9c38e1bcd548" />
 
 Demo
 View the screen recording
